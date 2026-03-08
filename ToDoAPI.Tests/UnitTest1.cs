@@ -49,4 +49,41 @@ public class ToDoHandlerTests
         Assert.Single(okResult.Value!);
         Assert.Equal("Walk dog", okResult.Value![0].Name);
     }
+
+    [Fact]
+    public async Task GetToDo_ReturnsCorrectToDo()
+    {
+        // Arrange
+        var db = CreateInMemoryDb();
+        db.ToDos.AddRange(
+            new ToDo { Name = "Buy milk", IsComplete = false },
+            new ToDo { Name = "Walk dog", IsComplete = true }
+        );
+        await db.SaveChangesAsync();
+
+        // Act
+        var result = await ToDoHandlers.GetToDo(1, db);
+
+        // Assert
+        var okResult = Assert.IsType<Ok<ToDoItemDTO>>(result);
+        Assert.Equal("Buy milk", okResult.Value?.Name);
+    }
+
+    [Fact]
+    public async Task GetToDo_HandlesNoValidToDo()
+    {
+        // Arrange
+        var db = CreateInMemoryDb();
+        db.ToDos.AddRange(
+            new ToDo { Name = "Buy milk", IsComplete = false },
+            new ToDo { Name = "Walk dog", IsComplete = true }
+        );
+        await db.SaveChangesAsync();
+
+        // Act
+        var result = await ToDoHandlers.GetToDo(3, db);
+
+        // Assert
+        var okResult = Assert.IsType<NotFound>(result);
+    }
 }
