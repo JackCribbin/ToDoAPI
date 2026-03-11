@@ -12,7 +12,19 @@ builder.Services.AddOpenApiDocument(config =>
     config.Version = "v1";
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())
 {
@@ -36,5 +48,3 @@ ToDoItems.MapPut("/{id}", ToDoHandlers.UpdateToDo);
 ToDoItems.MapDelete("/{id}", ToDoHandlers.DeleteToDo);
 
 app.Run();
-
-public partial class Program { }
